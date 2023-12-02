@@ -86,3 +86,40 @@ test_db_storage.py'])
 #    @unittest.skipIf(models.storage_t != 'db', "not testing db storage")
 #    def test_save(self):
 #        """Test that save properly saves objects to file.json"""
+
+
+class TestDBStorageGet(unittest.TestCase):
+    """ Test the get method for the DB Storage"""
+    @classmethod
+    def setUpClass(cls):
+        """Set up for the doc tests"""
+        cls.db_storage = DBStorage()
+    def setUp(self):
+        """Set up an instance"""
+        self.bm_instance = BaseModel()
+        self.city_instance = City()
+
+    def test_get_existing_object(self):
+        """Test for an existing object"""
+        self.db_storage.storage["BaseModel_1"] = self.bm_instance
+        self.db_storage.storage["City_1"] = self.city_instance
+
+        retrieved_test_bm = self.db_storage.get(BaseModel, "1")
+        self.assertEqual(retrieved_test_bm, self.bm_instance)
+
+        retrieved_test_city = db_storage.get(City, "1")
+        self.assertEqual(retrieved_test_city, self.city_instance)
+
+    def tearDown(self):
+        """Tear down after each test method"""
+        if hasattr(self, 'bm_instance'):
+            pass
+        if hasattr(self, 'city_instance'):
+            pass
+
+    @classmethod
+    def tearDownClass(cls):
+        """Tear down after all the tests are completed"""
+
+        if hasattr(cls, 'db_storage') and isinstance(cls.db_storage, DBStorage):
+            cls.db_storage.close()
