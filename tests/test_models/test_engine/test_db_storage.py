@@ -22,6 +22,8 @@ DBStorage = db_storage.DBStorage
 classes = {"Amenity": Amenity, "City": City, "Place": Place,
            "Review": Review, "State": State, "User": User}
 
+STORAGE_TYPE = os.environ.get('HBNB_TYPE_STORAGE')
+
 
 class TestDBStorageDocs(unittest.TestCase):
     """Tests to check the documentation and style of DBStorage class"""
@@ -68,21 +70,68 @@ test_db_storage.py'])
                             "{:s} method needs a docstring".format(func[0]))
 
 
-# class TestFileStorage(unittest.TestCase):
-#    """Test the FileStorage class"""
-#    @unittest.skipIf(models.storage_t != 'db', "not testing db storage")
-#    def test_all_returns_dict(self):
-#        """Test that all returns a dictionaty"""
-#        self.assertIs(type(models.storage.all()), dict)
+class TestFileStorage(unittest.TestCase):
+    """Test the FileStorage class"""
+    @unittest.skipIf(models.storage_t != 'db', "not testing db storage")
+    def test_all_returns_dict(self):
+        """Test that all returns a dictionaty"""
+        self.assertIs(type(models.storage.all()), dict)
 
-#    @unittest.skipIf(models.storage_t != 'db', "not testing db storage")
-#    def test_all_no_class(self):
-#        """Test that all returns all rows when no class is passed"""
+    @unittest.skipIf(models.storage_t != 'db', "not testing db storage")
+    def test_all_no_class(self):
+        """Test that all returns all rows when no class is passed"""
 
-#    @unittest.skipIf(models.storage_t != 'db', "not testing db storage")
-#    def test_new(self):
-#        """test that new adds an object to the database"""
+    @unittest.skipIf(models.storage_t != 'db', "not testing db storage")
+    def test_new(self):
+        """test that new adds an object to the database"""
 
-#    @unittest.skipIf(models.storage_t != 'db', "not testing db storage")
-#    def test_save(self):
-#        """Test that save properly saves objects to file.json"""
+    @unittest.skipIf(models.storage_t != 'db', "not testing db storage")
+    def test_save(self):
+        """Test that save properly saves objects to file.json"""
+
+
+@unittest.skipIf(STORAGE_TYPE != 'db', 'skip if environ is not db')
+class TestDBStorageGetCount(unittest.TestCase):
+    """ Test the get and count methods for the DB Storage"""
+
+    def setUp(self):
+        """Set up an instance"""
+        self.bm = BaseModel()
+        self.bm.save()
+
+    def test_get_existing_object(self):
+        """Test for an existing object"""
+        retrieved_bm = storage.get(BaseModel, self.bm.id)
+        expected = self.bm.id
+        self.assertEqual(retrieved_bm.id, expected)
+
+    def test_get_invalid_object(self):
+        """Test for an object that does not exist."""
+        self.assertEqual(storage.get(Place, "not_an_id"), None)
+
+    def test_count_all(self):
+        """Test the count method with no args."""
+        original_count = storage.count()
+        bm1 = BaseModel()
+        bm1.save()
+        u1 = User()
+        u1.save()
+        self.assertEqual(2, storage.count() - original_count)
+        bm1.delete()
+        u1.delete()
+
+    def test_count_BaseModel(self):
+        """Test count with a valid class argument."""
+        original_count = storage.count('BaseModel')
+        bm1 = BaseModel()
+        bm1.save()
+        self.assertEqual(1, storage.count() - original_count)
+        bm1.delete()
+
+    def tearDown(self):
+        """Tear down after each test method"""
+        storage.delete(self.bm)
+
+
+if __name__ == '__main__':
+    unittest.main()

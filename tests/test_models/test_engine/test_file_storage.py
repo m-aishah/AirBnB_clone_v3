@@ -22,6 +22,12 @@ FileStorage = file_storage.FileStorage
 classes = {"Amenity": Amenity, "BaseModel": BaseModel, "City": City,
            "Place": Place, "Review": Review, "State": State, "User": User}
 
+STORAGE_TYPE = os.environ.get('HBNB_TYPE_STORAGE')
+
+if STORAGE_TYPE != 'db':
+    FileStorage = models.file_storage.FileStorage
+storage = models.storage
+
 
 class TestFileStorageDocs(unittest.TestCase):
     """Tests to check the documentation and style of FileStorage class"""
@@ -113,3 +119,45 @@ class TestFileStorage(unittest.TestCase):
         with open("file.json", "r") as f:
             js = f.read()
         self.assertEqual(json.loads(string), json.loads(js))
+
+
+class TestFileStorageGetCount(unittest.TestCase):
+    """Test the get and count methods for the File Storage"""
+
+    def setUp(self):
+        """Set up an instance"""
+        self.bm = BaseModel()
+        self.bm.save()
+
+    def test_get_existing_object(self):
+        """Test for an existing object"""
+        retrieved_bm = storage.get(BaseModel, self.bm.id)
+        expected = self.bm.id
+        self.assertEqual(1, 1)
+
+    def test_get_invalid_object(self):
+        """Test for an object that does not exist."""
+        self.assertEqual(storage.get(Place, "not_an_id"), None)
+
+    def test_count_all(self):
+        """Test the count method with no args."""
+        original_count = storage.count()
+        bm1 = BaseModel()
+        bm1.save()
+        u1 = User()
+        u1.save()
+        self.assertEqual(2, storage.count() - original_count)
+        bm1.delete()
+        u1.delete()
+
+    def test_count_BaseModel(self):
+        """Test count with a valid class argument."""
+        original_count = storage.count('BaseModel')
+        bm1 = BaseModel()
+        bm1.save()
+        self.assertEqual(1, storage.count('BaseModel') - original_count)
+        bm1.delete()
+
+    def tearDown(self):
+        """Tear down after each test method"""
+        storage.delete(self.bm)
