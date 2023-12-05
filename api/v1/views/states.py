@@ -12,35 +12,35 @@ from models.state import State
 app = Flask(__name__)
 
 
-@app.route('/api/v1/states', methods=['GET'])
+@app.route('/states', methods=['GET'])
 def get_all_states():
     """Retrieves the list of all State objects"""
     states = storage.all(State)
     return jsonify([state.to_dict() for state in states.values()])
 
 
-@app.route('/api/v1/states/<state_id>', methods=['GET'])
+@app.route('/states/<state_id>', methods=['GET'])
 def get_state(state_id):
     """Retrieves a State object"""
     state = storage.get(State, state_id)
     if not state:
-        return jsonify({"error": "404"}), 404
+        return jsonify({"error": "Not found"}), 404
     return jsonify(state.to_dict())
 
 
-@app.route('/api/v1/states/<state_id>', methods=['DELETE'])
+@app.route('/states/<state_id>', methods=['DELETE'])
 def delete_state(state_id):
     """Deletes a State object"""
     state = storage.get(State, state_id)
     if not state:
-        return jsonify({"error": "404"}), 404
+        return jsonify({"error": "Not found"}), 404
 
     storage.delete(state)
     storage.save()
     return jsonify({}), 200
 
 
-@app.route('/api/v1/states', methods=['POST'])
+@app.route('/states', methods=['POST'])
 def add_state():
     """Adds/Creates a new State object"""
     data = request.get_json()
@@ -56,12 +56,12 @@ def add_state():
     return jsonify(new_state.to_dict()), 201
 
 
-@app.route('/api/v1/states/<state_id>', methods=['PUT'])
+@app.route('/states/<state_id>', methods=['PUT'])
 def update_state(state_id):
     """Update the State object with all key-value pairs of the dictionary"""
     state = storage.get(State, state_id)
     if not state:
-        return jsonify({"error": "404"}), 404
+        return jsonify({"error": "Not found"}), 404
 
     data = request.get_json()
     if not data:
