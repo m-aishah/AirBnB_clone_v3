@@ -12,14 +12,14 @@ from models.state import State
 app = Flask(__name__)
 
 
-@app.route('/states', methods=['GET'])
+@app_views.route('/states', methods=['GET'])
 def get_all_states():
     """Retrieves the list of all State objects"""
     states = storage.all(State)
     return jsonify([state.to_dict() for state in states.values()])
 
 
-@app.route('/states/<state_id>', methods=['GET'])
+@app_views.route('/states/<state_id>', methods=['GET'])
 def get_state(state_id):
     """Retrieves a State object"""
     state = storage.get(State, state_id)
@@ -28,7 +28,7 @@ def get_state(state_id):
     return jsonify(state.to_dict())
 
 
-@app.route('/states/<state_id>', methods=['DELETE'])
+@app_views.route('/states/<state_id>', methods=['DELETE'])
 def delete_state(state_id):
     """Deletes a State object"""
     state = storage.get(State, state_id)
@@ -40,7 +40,7 @@ def delete_state(state_id):
     return jsonify({}), 200
 
 
-@app.route('/states', methods=['POST'])
+@app_views.route('/states', methods=['POST'])
 def add_state():
     """Adds/Creates a new State object"""
     data = request.get_json()
@@ -56,7 +56,7 @@ def add_state():
     return jsonify(new_state.to_dict()), 201
 
 
-@app.route('/states/<state_id>', methods=['PUT'])
+@app_views.route('/states/<state_id>', methods=['PUT'])
 def update_state(state_id):
     """Update the State object with all key-value pairs of the dictionary"""
     state = storage.get(State, state_id)
